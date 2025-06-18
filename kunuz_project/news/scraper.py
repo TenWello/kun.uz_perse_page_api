@@ -35,10 +35,10 @@ class Command(BaseCommand):
                 )
 
         # right side news latest
-        latest_list = soup.find("div", class_="news-list")
+        latest_list = soup.find("div", class_="latest-news__list")
         if latest_list:
-            for item in latest_list.find_all("a", class_="news__title"):
-                title = item.text.strip()
+            for item in latest_list.find_all("a", class_="latest-news__item"):
+                title = item.get_text(strip=True)
                 link = "https://kun.uz" + item.get("href")
                 News.objects.update_or_create(
                     link=link,

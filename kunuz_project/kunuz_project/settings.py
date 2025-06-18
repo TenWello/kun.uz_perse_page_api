@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'news',
+# 'django_crontab',
+#     'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +51,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'fetch-kunuz-every-5-min': {
+        'task': 'news.tasks.fetch_kunuz_task',
+        'schedule': crontab(minute='*/2'),
+    },
+}
+CRONJOBS = [
+    ('*/5 * * * *', 'news.management.commands.fetch_kunuz.Command.handle'),
 ]
 
 ROOT_URLCONF = 'kunuz_project.urls'
