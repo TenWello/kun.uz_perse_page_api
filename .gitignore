@@ -1,0 +1,71 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.installed.cfg
+MANIFEST
+db.sqlite3
+# Distribution / packaging
+.Python
+build/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.whl
+*.zip
+
+# Virtual environment
+.env/
+venv/
+env/
+# For poetry
+.venv/
+
+# Editor-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.bak
+*.swo
+
+# Tests and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+*.bak
+
+# OS generated files
+.DS_Store
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# PyInstaller
+*.spec
+build/
+dist/
+
+# Others
+*.pid
+*.seed
+.project
+.pydevproject

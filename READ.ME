@@ -1,0 +1,11 @@
+for windows users
+1) python.exe -m venv venv
+    - venv\Scripts\activate
+2) pip install -r requirements.txt
+3) python manage.py makemigrations
+4) python manage.py migrate
+5) python manage.py fetch_kunuz
+6) python manage.py runserver
+
+http://localhost:8000/api/kunuz-news/      ---  Main news (left side)
+http://localhost:8000/api/news/            --- Latest news (right side)
