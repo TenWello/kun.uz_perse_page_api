@@ -5,9 +5,9 @@ for windows users
 3) python manage.py makemigrations
 4) python manage.py migrate
 5) python manage.py fetch_kunuz   # qo'lda upload
--redisni ishga tushirish
+-redisni ishga tushirish (redis-server)
 1- terminal
--celery -A kunuz_project worker -P solo --loglevel=info
+celery -A kunuz_project worker -P solo --loglevel=info
 2-terminal
  celery -A kunuz_project beat --loglevel=info
 

@@ -17,21 +17,25 @@ class Command(BaseCommand):
         soup = BeautifulSoup(response.text, "html.parser")
 
         # main news (kategoriya yo'q, lekin qo'shib ketamiz, null bo'ladi)
-        main_block = soup.find("div", class_="main-news")
+        main_block = soup.find("div", class_="main-news__left-hero")
         if main_block:
-            main_link = main_block.find("a")
-            main_title = main_block.find("div", class_="news-title")
-            main_desc = main_block.find("div", class_="news-desc")
-            main_img = main_block.find("img")
-            if main_link and main_title:
+            a_tag = main_block.find("a", href=True)
+            title_tag = main_block.find("h3", class_="main-news__left-hero-title")
+            img_tag = main_block.find("img", src=True)
+
+            if a_tag and title_tag:
+                link = "https://kun.uz" + a_tag["href"]
+                title = title_tag.get_text(strip=True)
+                image = img_tag["src"] if img_tag else ""
+
                 News.objects.update_or_create(
-                    link="https://kun.uz" + main_link["href"],
+                    link=link,
                     defaults={
-                        "title": main_title.text.strip(),
-                        "description": main_desc.text.strip() if main_desc else "",
-                        "image": main_img["src"] if main_img else "",
+                        "title": title,
+                        "description": "",
+                        "image": image,
                         "type": "main",
-                        "category": "",  # main uchun category bo'sh
+                        "category": "",
                     }
                 )
 

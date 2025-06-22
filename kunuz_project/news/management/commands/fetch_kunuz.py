@@ -16,50 +16,41 @@ class Command(BaseCommand):
             )
         }
 
-        # kunuzni upload qilish
         resp = requests.get(url, headers=headers, timeout=10)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
 
-        # Left side Main news (html class: main-news__left)
-        main_block = soup.find("div", class_="main-news__left")
-        category = ""
+        # MAIN news block (left-hero)
+        main_block = soup.find("div", class_="main-news__left-hero")
         if main_block:
-            cat_div = main_block.find("div", class_="gray-text")
-            if cat_div:
-                cat_text = cat_div.get_text(strip=True)
-                if "|" in cat_text:
-                    category = cat_text.split("|")[0].strip()
-                else:
-                    category = cat_text.strip()
-            a = main_block.find("a", href=True)
-            img = main_block.find("img", src=True)
-            if a:
+            link_tag = main_block.find("a", href=True)
+            title_tag = main_block.find("h3", class_="main-news__left-hero-title")
+            desc_tag = main_block.find("p", class_="main-news__left-hero-text")
+            img_tag = main_block.find("img", src=True)
+
+            if link_tag:
                 News.objects.update_or_create(
-                    link="https://kun.uz" + a["href"],
+                    link="https://kun.uz" + link_tag["href"],
                     defaults={
-                        "title": a.get_text(strip=True),
-                        "description": "",
-                        "image": img["src"] if img else "",
+                        "title": title_tag.get_text(strip=True) if title_tag else "",
+                        "description": desc_tag.get_text(strip=True) if desc_tag else "",
+                        "image": img_tag["src"] if img_tag else "",
                         "type": "main",
-                        "category": category,
+                        "category": "",  # category topilmadi
                     }
                 )
 
-        # Right side latest news (main-news__right ichidagi <a> kun.uz html class)
+        # LATEST news (right-side)
         sidebar = soup.find("div", class_="main-news__right")
         if sidebar:
             a_list = sidebar.find_all("a", href=True)
             for idx, a in enumerate(a_list):
                 title = a.get_text(strip=True)
                 link = "https://kun.uz" + a["href"]
-                # Category: odatda <div class="gray-text"><p>O‘zbekiston | 14:11</p></div>
                 category = ""
                 gray_divs = sidebar.find_all("div", class_="gray-text")
-                # Agar har bir a uchun bitta category bor deb faraz qilamiz:
                 if idx < len(gray_divs):
                     cat_text = gray_divs[idx].get_text(strip=True)
-                    # "O‘zbekiston | 14:11" => "O‘zbekiston"
                     if "|" in cat_text:
                         category = cat_text.split("|")[0].strip()
                     else:
@@ -72,7 +63,7 @@ class Command(BaseCommand):
                         "description": "",
                         "image": "",
                         "type": "latest",
-                        "category": category,  # <-- Qo‘shdik!
+                        "category": category,
                     }
                 )
 
