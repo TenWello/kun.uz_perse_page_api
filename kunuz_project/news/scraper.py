@@ -16,7 +16,7 @@ class Command(BaseCommand):
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # main news
+        # main news (kategoriya yo'q, lekin qo'shib ketamiz, null bo'ladi)
         main_block = soup.find("div", class_="main-news")
         if main_block:
             main_link = main_block.find("a")
@@ -30,7 +30,8 @@ class Command(BaseCommand):
                         "title": main_title.text.strip(),
                         "description": main_desc.text.strip() if main_desc else "",
                         "image": main_img["src"] if main_img else "",
-                        "type": "main"
+                        "type": "main",
+                        "category": "",  # main uchun category bo'sh
                     }
                 )
 
@@ -40,11 +41,26 @@ class Command(BaseCommand):
             for item in latest_list.find_all("a", class_="latest-news__item"):
                 title = item.get_text(strip=True)
                 link = "https://kun.uz" + item.get("href")
+
+                # categoryni olish uchun: keyingi "div.gray-text > p"
+                category = ""
+                gray_div = item.find_next("div", class_="gray-text")
+                if gray_div:
+                    p = gray_div.find("p")
+                    if p:
+                        cat_text = p.get_text(strip=True)
+                        # Masalan: "O‘zbekiston | 14:11"
+                        if "|" in cat_text:
+                            category = cat_text.split("|")[0].strip()
+                        else:
+                            category = cat_text.strip()
+
                 News.objects.update_or_create(
                     link=link,
                     defaults={
                         "title": title,
-                        "type": "latest"
+                        "type": "latest",
+                        "category": category,
                     }
                 )
         self.stdout.write(self.style.SUCCESS("news uploaded"))

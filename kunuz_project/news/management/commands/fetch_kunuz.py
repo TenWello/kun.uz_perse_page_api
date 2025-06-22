@@ -23,33 +23,56 @@ class Command(BaseCommand):
 
         # Left side Main news (html class: main-news__left)
         main_block = soup.find("div", class_="main-news__left")
+        category = ""
         if main_block:
+            cat_div = main_block.find("div", class_="gray-text")
+            if cat_div:
+                cat_text = cat_div.get_text(strip=True)
+                if "|" in cat_text:
+                    category = cat_text.split("|")[0].strip()
+                else:
+                    category = cat_text.strip()
             a = main_block.find("a", href=True)
             img = main_block.find("img", src=True)
             if a:
                 News.objects.update_or_create(
                     link="https://kun.uz" + a["href"],
                     defaults={
-                        "title":       a.get_text(strip=True),
-                        "description": "",  # kun uz homepageda description yoq
-                        "image":       img["src"] if img else "",
-                        "type":        "main"
+                        "title": a.get_text(strip=True),
+                        "description": "",
+                        "image": img["src"] if img else "",
+                        "type": "main",
+                        "category": category,
                     }
                 )
 
         # Right side latest news (main-news__right ichidagi <a> kun.uz html class)
         sidebar = soup.find("div", class_="main-news__right")
         if sidebar:
-            for a in sidebar.find_all("a", href=True):
+            a_list = sidebar.find_all("a", href=True)
+            for idx, a in enumerate(a_list):
                 title = a.get_text(strip=True)
-                link  = "https://kun.uz" + a["href"]
+                link = "https://kun.uz" + a["href"]
+                # Category: odatda <div class="gray-text"><p>O‘zbekiston | 14:11</p></div>
+                category = ""
+                gray_divs = sidebar.find_all("div", class_="gray-text")
+                # Agar har bir a uchun bitta category bor deb faraz qilamiz:
+                if idx < len(gray_divs):
+                    cat_text = gray_divs[idx].get_text(strip=True)
+                    # "O‘zbekiston | 14:11" => "O‘zbekiston"
+                    if "|" in cat_text:
+                        category = cat_text.split("|")[0].strip()
+                    else:
+                        category = cat_text.strip()
+
                 News.objects.update_or_create(
                     link=link,
                     defaults={
-                        "title":       title,
+                        "title": title,
                         "description": "",
-                        "image":       "",
-                        "type":        "latest"
+                        "image": "",
+                        "type": "latest",
+                        "category": category,  # <-- Qo‘shdik!
                     }
                 )
 

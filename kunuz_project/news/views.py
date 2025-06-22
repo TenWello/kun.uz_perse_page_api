@@ -1,12 +1,18 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import generics
 from .models import News
 from .serializers import NewsSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
 class NewsListView(generics.ListAPIView):
-    queryset = News.objects.all().order_by('-id')
     serializer_class = NewsSerializer
+
+    def get_queryset(self):
+        queryset = News.objects.all().order_by('-id')
+        category = self.request.query_params.get('category')
+        if category:
+            queryset = queryset.filter(category__iexact=category)
+        return queryset
 
 class KunUzNewsView(APIView):
     def get(self, request):
