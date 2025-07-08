@@ -16,7 +16,6 @@ class Command(BaseCommand):
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # main news (kategoriya yo'q, lekin qo'shib ketamiz, null bo'ladi)
         main_block = soup.find("div", class_="main-news__left-hero")
         if main_block:
             a_tag = main_block.find("a", href=True)
@@ -39,21 +38,18 @@ class Command(BaseCommand):
                     }
                 )
 
-        # right side news latest
         latest_list = soup.find("div", class_="latest-news__list")
         if latest_list:
             for item in latest_list.find_all("a", class_="latest-news__item"):
                 title = item.get_text(strip=True)
                 link = "https://kun.uz" + item.get("href")
 
-                # categoryni olish uchun: keyingi "div.gray-text > p"
                 category = ""
                 gray_div = item.find_next("div", class_="gray-text")
                 if gray_div:
                     p = gray_div.find("p")
                     if p:
                         cat_text = p.get_text(strip=True)
-                        # Masalan: "O‘zbekiston | 14:11"
                         if "|" in cat_text:
                             category = cat_text.split("|")[0].strip()
                         else:
